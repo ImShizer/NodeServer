@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список паков</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .uploadButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            /* Зеленый цвет */
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+        }
+
+        .uploadButton:hover {
+            background-color: #45a049;
+            /* Темно-зеленый цвет при наведении */
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #foldersList {
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .folderItem {
+            width: calc(20% - 20px);
+            /* 20% ширины экрана, вычитаем отступы между элементами */
+            margin: 10px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .folderName {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .downloadButton {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .copyButton {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #01d00b;
+            color: #ffffff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .downloadButton:hover {
+            background-color: #0056b3;
+        }
+
+        .copyButton:hover {
+            background-color: #00b309;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Кнопка для перехода на страницу загрузки -->
+    <a href="upload.html" class="uploadButton">Новый</a>
+
+    <!-- Ваш остальной HTML код -->
+    <h2>Список паков</h2>
+    <ul id="foldersList"></ul>
+
+    <script>
+        // Функция для загрузки списка папок и создания ссылок на скачивание
+        function loadFolders() {
+            fetch('/folders')
+                .then(response => response.json())
+                .then(folders => {
+                    const foldersList = document.getElementById('foldersList');
+                    folders.forEach(folder => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'folderItem';
+                        const folderName = document.createElement('div');
+                        folderName.className = 'folderName';
+                        folderName.textContent = folder.name;
+                        const downloadButton = document.createElement('button');
+                        downloadButton.className = 'downloadButton';
+                        downloadButton.textContent = 'Скачать';
+                        downloadButton.addEventListener('click', () => {
+                            downloadFolder(folder.name);
+                        });
+                        const copyButton = document.createElement('button');
+                        const link = "http://localhost:3000"
+                        copyButton.textContent = 'Ссылка';
+                        copyButton.className = 'copyButton'; // Добавляем класс для стилизации
+                        copyButton.addEventListener('click', () => {
+                            copyLink(`${link}/download/${encodeURIComponent(folder.name)}`);
+                        });
+                        listItem.appendChild(folderName);
+                        listItem.appendChild(copyButton); // Помещаем кнопку копировать перед кнопкой скачать
+                        listItem.appendChild(downloadButton);
+                        foldersList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке списка папок:', error);
+                });
+        }
+
+        // Функция для скачивания содержимого папки в виде zip-архива
+        function downloadFolder(folderName) {
+            window.location.href = `/download/${encodeURIComponent(folderName)}`;
+        }
+
+        // Функция для копирования ссылки
+        function copyLink(link) {
+            const tempInput = document.createElement('input');
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-1000px';
+            tempInput.style.top = '-1000px';
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Ссылка скопирована в буфер обмена!');
+        }
+
+        // Загрузить список папок при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadFolders);
+    </script>
+</body>
+
+</html>

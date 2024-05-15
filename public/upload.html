@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Zip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #uploadForm {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #fileInput {
+            margin-bottom: 20px;
+        }
+
+        #uploadButton {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #uploadButton:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Стили для кнопки "Назад" */
+        #backButton {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #dc3545;
+            /* Красный цвет */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #backButton:hover {
+            background-color: #c82333;
+            /* Темно-красный цвет при наведении */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Кнопка "Назад" -->
+    <button id="backButton" onclick="goBack()">Назад</button>
+
+    <h2>Загрузить пак</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput">
+        <button type="button" id="uploadButton" onclick="uploadZip()">Загрузить</button>
+    </form>
+    <p id="message"></p>
+
+    <script>
+        // Функция для возвращения на предыдущую страницу
+        function goBack() {
+            window.history.back();
+        }
+
+        // Функция для загрузки Zip-архива
+        function uploadZip() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                document.getElementById('message').textContent = 'Выберите файл для загрузки.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.text())
+                .then(message => {
+                    document.getElementById('message').textContent = message;
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке:', error);
+                    document.getElementById('message').textContent = 'Произошла ошибка при загрузке файла.';
+                });
+        }
+    </script>
+</body>
+
+</html>
